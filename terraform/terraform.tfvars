@@ -1,0 +1,12 @@
+resource_group_name    = "rg-aks-demo"
+location               = "westeurope"
+environment            = "development"
+project_name           = "aks-demo"
+vnet_name              = "aks-demo-vnet"
+vnet_address_space     = "10.10.0.0/16"
+subnet_name            = "aks-demo-subnet"
+subnet_address_prefix  = "10.10.1.0/24"
+aks_name               = "aks-demo-cluster"
+aks_dns_prefix         = "aksdemodns"
+aks_node_count         = 2
+aks_vm_size            = "Standard_DS2_v2"
