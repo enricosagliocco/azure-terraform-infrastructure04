@@ -75,7 +75,7 @@ variable "aks_dns_prefix" {
 variable "kubernetes_version" {
   description = "Versione di Kubernetes"
   type        = string
-  default     = "1.28.5"  # Aggiorna alla versione desiderata
+  default     = "1.33"  # Aggiorna alla versione desiderata
 }
 
 ##############################################################################
