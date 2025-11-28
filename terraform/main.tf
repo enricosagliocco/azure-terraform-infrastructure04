@@ -234,7 +234,7 @@ resource "azurerm_kubernetes_cluster" "main" {
     max_count            = var.aks_max_node_count
     
     # OS configuration
-    os_disk_type       = "Ephemeral"
+    os_disk_type       = "Managed"
     os_disk_size_gb    = 100
     
     # Pod per nodo
