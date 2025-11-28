@@ -31,10 +31,10 @@ kubernetes_version = "1.33"
 # Node Pool Configuration
 ##############################################################################
 
-aks_node_count     = 3
-aks_min_node_count = 2
-aks_max_node_count = 10
-aks_vm_size        = "Standard_D4s_v3"
+aks_node_count     = 1      # 1 nodo sufficiente per test/learning
+aks_min_node_count = 1      # minimo per risparmiare risorse
+aks_max_node_count = 2      # massimo 2 nodi per contenere costi
+aks_vm_size        = "Standard_B2s"  # VM piccola ed economica
 
 ##############################################################################
 # Network Profile
