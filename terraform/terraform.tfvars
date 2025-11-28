@@ -25,7 +25,7 @@ pe_subnet_address_prefix    = "10.240.2.0/24"
 
 aks_name           = "aks-myapp-private"
 aks_dns_prefix     = "myapp-aks"
-kubernetes_version = "1.28.5"
+kubernetes_version = "1.33"
 
 ##############################################################################
 # Node Pool Configuration
