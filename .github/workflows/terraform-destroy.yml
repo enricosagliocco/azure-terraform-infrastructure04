@@ -47,7 +47,8 @@ jobs:
       - name: Terraform Init
         run: |
           cd ${{ env.WORKING_DIR }}
-          terraform init -upgrade
+          rm -rf .terraform*
+          terraform init
         env:
           TF_INPUT: false
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
