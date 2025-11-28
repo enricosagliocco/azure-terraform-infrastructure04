@@ -168,9 +168,40 @@ resource "azurerm_private_dns_zone_virtual_network_link" "aks" {
 }
 
 ##############################################################################
-# NOTE: Using System-Assigned Identity to avoid role assignment permissions
-# AKS will automatically create and manage the identity and required permissions
+# User Assigned Identity for AKS
+# REQUIRED: User-assigned identity is mandatory when using custom private DNS zone
 ##############################################################################
+
+resource "azurerm_user_assigned_identity" "aks" {
+  name                = "${var.project_name}-aks-identity"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+    Project     = var.project_name
+  }
+}
+
+##############################################################################
+# Role Assignment for Private DNS Zone
+# NOTE: This requires User Access Administrator or Owner role for Terraform
+# If you get 403 errors, see solutions below
+##############################################################################
+
+resource "azurerm_role_assignment" "aks_private_dns_zone_contributor" {
+  scope                = azurerm_private_dns_zone.aks.id
+  role_definition_name = "Private DNS Zone Contributor"
+  principal_id         = azurerm_user_assigned_identity.aks.principal_id
+  # Add skip_service_principal_aad_check to avoid potential race conditions
+  skip_service_principal_aad_check = true
+
+  depends_on = [
+    azurerm_user_assigned_identity.aks,
+    azurerm_private_dns_zone.aks
+  ]
+}
 
 ##############################################################################
 # Private AKS Cluster
@@ -227,9 +258,10 @@ resource "azurerm_kubernetes_cluster" "main" {
     }
   }
 
-  # System Assigned Identity - Azure will manage permissions automatically
+  # User Assigned Identity (REQUIRED for custom private DNS zone)
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.aks.id]
   }
 
   # Network Profile per cluster privato
@@ -295,7 +327,8 @@ resource "azurerm_kubernetes_cluster" "main" {
     azurerm_subnet_network_security_group_association.aks_nodes_nsg,
     azurerm_subnet_route_table_association.aks_nodes_rt,
     azurerm_private_dns_zone.aks,
-    azurerm_private_dns_zone_virtual_network_link.aks
+    azurerm_private_dns_zone_virtual_network_link.aks,
+    azurerm_role_assignment.aks_private_dns_zone_contributor
   ]
 }
 
@@ -318,19 +351,17 @@ resource "azurerm_log_analytics_workspace" "main" {
 }
 
 ##############################################################################
-# Role Assignment - AKS to VNet
-# NOTE: With SystemAssigned identity, AKS manages these permissions automatically
-# This explicit assignment may not be necessary but is kept for clarity
+# Role Assignment - AKS to VNet (Optional but recommended)
 ##############################################################################
 
-# Uncomment if you need explicit network permissions after cluster creation
-# resource "azurerm_role_assignment" "aks_network_contributor" {
-#   scope                = azurerm_virtual_network.main.id
-#   role_definition_name = "Network Contributor"
-#   principal_id         = azurerm_kubernetes_cluster.main.identity[0].principal_id
-#   
-#   depends_on = [azurerm_kubernetes_cluster.main]
-# }
+resource "azurerm_role_assignment" "aks_network_contributor" {
+  scope                = azurerm_virtual_network.main.id
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_user_assigned_identity.aks.principal_id
+  skip_service_principal_aad_check = true
+  
+  depends_on = [azurerm_user_assigned_identity.aks]
+}
 
 ##############################################################################
 # Private Endpoint for AKS (opzionale, per connessioni aggiuntive)
@@ -386,8 +417,8 @@ output "aks_node_resource_group" {
 }
 
 output "aks_identity_principal_id" {
-  value       = azurerm_kubernetes_cluster.main.identity[0].principal_id
-  description = "Principal ID della managed identity del cluster (System-Assigned)"
+  value       = azurerm_user_assigned_identity.aks.principal_id
+  description = "Principal ID della managed identity del cluster"
 }
 
 output "private_dns_zone_id" {
