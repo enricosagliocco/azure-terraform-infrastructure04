@@ -388,7 +388,6 @@ resource "azurerm_private_endpoint" "aks" {
 # Outputs
 ##############################################################################
 
-
 output "aks_cluster_name" {
   value       = azurerm_kubernetes_cluster.main.name
   description = "Nome del cluster AKS"
