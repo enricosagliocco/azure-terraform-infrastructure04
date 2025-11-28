@@ -223,10 +223,10 @@ resource "azurerm_kubernetes_cluster" "main" {
     vnet_subnet_id      = azurerm_subnet.aks_nodes.id
     type                = "VirtualMachineScaleSets"
     
-    # Auto-scaling
-    enable_auto_scaling = true
-    min_count          = var.aks_min_node_count
-    max_count          = var.aks_max_node_count
+    # Auto-scaling - FIXED: Changed from enable_auto_scaling to auto_scaling_enabled for v4.x
+    auto_scaling_enabled = true
+    min_count            = var.aks_min_node_count
+    max_count            = var.aks_max_node_count
     
     # OS configuration
     os_disk_type       = "Ephemeral"
