@@ -89,7 +89,7 @@ resource "azurerm_route_table" "aks_route_table" {
   name                          = "${var.project_name}-aks-rt"
   location                      = azurerm_resource_group.main.location
   resource_group_name           = azurerm_resource_group.main.name
-  disable_bgp_route_propagation = false
+  bgp_route_propagation_enabled = true
 
   tags = {
     Environment = var.environment

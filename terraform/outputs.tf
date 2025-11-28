@@ -15,10 +15,6 @@ output "virtual_network_name" {
   value       = azurerm_virtual_network.main.name
 }
 
-output "subnet_id" {
-  description = "ID della Subnet"
-  value       = azurerm_subnet.main.id
-}
 
 output "aks_name" {
   description = "Nome del cluster AKS"
