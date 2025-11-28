@@ -280,7 +280,6 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   # Azure Active Directory Integration
   azure_active_directory_role_based_access_control {
-    managed                = true
     azure_rbac_enabled     = true
     admin_group_object_ids = var.aks_admin_group_object_ids # Keep your admin group IDs here
   }
